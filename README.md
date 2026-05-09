@@ -1,72 +1,88 @@
 @TODO rework this file
 
-# PHP Validator Class
-This is a simple PHP Validator Class. It requires no dependencies. Fork it and have fun with it.
+# Validator Class
+This is a simple validator class. It requires no dependencies. It is based on `https://github.com/devwithkunal/php-validator-class`.
 
-It's a standalone single file PHP class to use on your projects. It requires no dependencies or no framework.
 
-## What's New
-- **Date validation** - Validate date format and date range
-- **Field alias** - Set alias on field names for error messages
-- **Error messages** - Generate error messages as associative array
 
-## How To Use
-You only need only one file:
 
- - `Validator.php`
+## Basic Use
 
-You can run everything from the index.php file, see the file for usage.
+Create the class instance. The constructor is the associative data array to be validated.
 
-### Step 1 - Initialize
-Before start
-```php
-// Include the class file
-require "Validator.php";
-
-// Data to validate
-$data = [
-    "name" => "John Doe",
-    "age" => 25,
-    "email" => "john@example.com",
-    "password" => "pass@123",
-    "confirm_password" => "pass@123",
-    "sex" => "male",
-    "phone" => "1236547895",
-    "dob" => "1998-07-11"
-];
 ```
-
-Create the class instance
-```php
 $v = new Validator($data);
 ```
-Use a associative array as data
 
-### Step 2 - 
-Run validation by chaining methods to the `field()` method. [Check here](#methods) to see description of every methods.
-```php
-$v->field('name')->required()->alpha([' ']);
-$v->field('age') ->required()->numeric()->min_val(14)->max_val(100);
-$v->field('email')->required()->email();
-$v->field('password')->required()->min_len(8)->max_len(16)->must_contain('@#$&')->must_contain('a-z')->must_contain('A-Z')->must_contain('0-9');
-$v->field('confirm_password')->required()->equals($data['password']);
-$v->field('sex')->enum(['male', 'female', 'others']);
-$v->field('phone')->numeric()->min_len(10)->max_len(10);
-$v->field('dob', 'date of birth')->date()->date_after('1998-01-01')->date_before('2002-12-31');
+Run validation checks by chaining methods to the `field()` method. The `field()` method must start every method chain.
+
+Check if the data is valid using the `isValid()` method.
+
 ```
-Make sure to run the field method on start of every method chain.
-
-### Step 3 -
-Check if data is valid
-```php
-if(!$v->is_valid()){
-    // Print the error messages
-    print_r($v->error_messages);
+if($v->isValid() == false) {
+    print_r($v->errors);
 }
 ```
 
-## Properties
-- `array $error_messages` - Get the list of generated error messages.
+
+
+## Example
+```
+require('Validator.php');
+
+use App\Controllers\Validator;
+
+// test data to validate
+$data = array(
+    'fname' => 'nathan randall',
+    'lname' => 'Kizer',
+    'username' => 'hypnokizer1729!',
+    'emailaddy' => 'nathan.kizer@test.com',
+    'password' => 'P@ssword!!',
+    'password-confirm' => 'mypassword2',
+    'age' => 50,
+    'sex' => 'male',
+    'state' => 'WY',
+    'zip' => '79407-3711',
+    'phone' => '806-441-8282',
+    'dob' => '01/02/1976',
+    'month' => 'Jan2026',
+    'payment' => '-$4,226.95'
+);
+
+$v = new Validator($data);
+
+$v->field('fname')->required()->changecase('capitalize');
+$v->field('lname', 'Last name')->required()->length(4);
+$v->field('username')->required()->regex('/^[A-Za-z0-9]+$/');
+$v->field('emailaddy')->required()->email();
+$v->field('age')->minvalue(45)->maxvalue(55)->integer();
+$v->field('sex')->enum(['male', 'female']);
+$v->field('state')->required()->state();
+$v->field('zip')->required()->zip();
+$v->field('phone')->required()->phone();
+$v->field('password')->minlength(10)->maxlength(15)->contains('a-z')->contains('@')->contains('A-Z');
+$v->field('password-confirm')->required()->equals($data['password']);
+$v->field('dob')->required()->date()->dateafter('January 2, 1976')->datebefore('January 3, 1976');
+$v->field('month')->required()->period();
+$v->field('payment')->required()->money();
+
+
+if($v->isValid() == false) {
+    echo '<pre>ERRORS FOUND:';
+    print_r($v->errors);
+    echo '</pre>';
+}
+```
+
+
+## List of Methods
+
+[list of methods and descriptions]
+
+
+
+
 
 ## Methods
 Some methods to use
@@ -97,10 +113,3 @@ Here is a list of the validators currently available.
 | `must_contain(str $chars)` | Check if the value must contains some charectors. <br/> param *string* `$chars` - Set of chars in one string. Ex. "@#&abc123"|
 | `match(str $pattern)` | Check if the value matchs a pattern. <br/> param *string* `$patarn` - Rejex pattern to match. |
 
-## More
-- You can change default error response messages on `Validator.php` at line `20`.
-- For the pattern of `match()` method, check out [PHP Manual](https://www.php.net/manual/en/function.preg-match.php) and [W3Schools](https://www.w3schools.com/php/php_regex.asp).
-- To know more about date formats, check out [PHP Manual](https://www.php.net/manual/en/datetime.format.php).
-
-## LICENSE
-[MIT License](LICENSE)
