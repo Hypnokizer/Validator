@@ -63,23 +63,26 @@ class Validator {
         // @TODO auto pull POST or GET if DATA not given?
         // @TODO basic escaping?
         // @TODO give positive messages: {field} must contain characters A-Z or 0-9
-        // @TODO create method to add or edit responses
-        // @TODO alphabetize keys
+        // @TODO set these here or use method setErrorMessage()?
+        // @TODO match up responses to completed methods
         $this->responses = array(
             'alpha' => '{field} must contain alphabetic characters only',
             'alphanumeric' => '{field} must contain alphanumeric characters only',
-            'contains' => '{field} must contain {chars}',
+            'contains' => '{field} must contain any of the following characters: {chars}',
             'date' => '{field} must be a valid date',
-            'dateafter' => '{field} date is not valid', // @TODO fix message
-            'datebefore' => '{field} date is not valid', // @TODO fix message
+            'dateafter' => '{field} is not after {date}',
+            'datebefore' => '{field} is not before {date}',
             'email' => '{field} must be a valid email address',
             'enum' => '{field} is not in the define list of accepted values',
             'equals' => '{field} does not match',
+            'integer' => '{field} is not an integer',
+            'length' => '{field} should be {length} characters',
             'match' => '{field} does not match',
             'maxlength' => '{field} is too long',
             'maxvalue' => '{field} is too high',
             'minlength' => '{field} is too short',
             'minvalue' => '{field} is too low',
+            'money' => '{field} contains non-currency characters',
             'numeric' => '{field} must contain numbers only',
             'phone' => '{field} is not a valid phone number',
             'required' => '{field} is required',
@@ -136,13 +139,12 @@ class Validator {
 
 
     /**
-     * method to set/extend custom error response
-     * @TODO finish, rename, etc
+     * method to set custom error response within methods
+     * @param string $field field name for error message
+     * @param string $message body of the error message
      */
-    public function setErrorMessage($messages) {
-        foreach($messages as $key => $val) {
-            $this->responses[$key] = $val;
-        }
+    protected function setErrorMessage($field, $message) {
+        $this->responses[$field] = $message;
     }
 
 
@@ -163,10 +165,7 @@ class Validator {
 
 
 
-
-
-
-
+    // @TODO create a null method to convert empty strings to NULL? watch for zero values showing as empty...
 
 
     /**
@@ -223,6 +222,24 @@ class Validator {
 
 
     /**
+     * check if the value contains characters
+     * @param string $chars set of characters to search for in one string (Ex: '@#abc123')
+     * @return this
+     * @TODO review the preg_match
+     */
+    public function contains($chars) {
+        if($this->next && $this->exists()) {
+            if(preg_match("/[" . $chars . "]/", $this->data[$this->currentfield]) == false) {
+                $this->addErrorMessage('contains', ['chars' => $chars]);
+                $this->next = false;
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * check if a valid date
      * @return this
      */
@@ -249,7 +266,22 @@ class Validator {
      */
     public function dateafter($date) {
         if($this->next && $this->exists()) {
+            try {
+                $dt1 = new DateTime($this->data[$this->currentfield]);
+                $dt2 = new DateTime($date);
+            }
+            catch(Exception $e) {
+                // set a custom message
+                $this->setErrorMessage($this->currentfield, 'The beginning date range is not a valid format');
+                $this->addErrorMessage($this->currentfield);
+                $this->next = false;
+            }
 
+            // compare dates
+            if($dt1 < $dt2) {
+                $this->addErrorMessage('dateafter', ['date' => $date]);
+                $this->next = false;
+            }
         }
 
         return $this;
@@ -258,11 +290,26 @@ class Validator {
 
     /**
      * check if date comes before a given date
-     * 
+     * @TODO check same date comparisons
      */
     public function datebefore($date) {
         if($this->next && $this->exists()) {
+            try {
+                $dt1 = new DateTime($this->data[$this->currentfield]);
+                $dt2 = new DateTime($date);
+            }
+            catch(Exception $e) {
+                // set a custom message
+                $this->setErrorMessage($this->currentfield, 'The ending date range is not a valid format');
+                $this->addErrorMessage($this->currentfield);
+                $this->next = false;
+            }
 
+            // compare dates
+            if($dt1 > $dt2) {
+                $this->addErrorMessage('datebefore', ['date' => $date]);
+                $this->next = false;
+            }
         }
 
         return $this;
@@ -307,6 +354,35 @@ class Validator {
     public function equals($value) {
         if($this->next && $this->exists() && $this->data[$this->currentfield] !== $value) {
             $this->addErrorMessage('equals');
+            $this->next = false;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * checks that value is an integer
+     * @return this
+     */
+    public function integer() {
+        if($this->next && $this->exists() && filter_var($this->data[$this->currentfield], FILTER_VALIDATE_INT) === false) {
+            $this->addErrorMessage('integer');
+            $this->next = false;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * checks string for exact length
+     * @param int $length length of string
+     * @return this
+     */
+    public function length($length) {
+        if($this->next && $this->exists() && strlen($this->data[$this->currentfield]) !== $length) {
+            $this->addErrorMessage('length', ['length' => $length]);
             $this->next = false;
         }
 
@@ -371,12 +447,50 @@ class Validator {
 
 
     /**
+     * changes string to decimal by removing dollar signs, commas, decimals, and negative signs
+     * @TODO review
+     */
+    public function money($ignore = array('$', ',', '.', '-')) {
+        // remove all characters other than numbers, dollars, commas; negative signs?
+        if($this->next && $this->exists() && !ctype_digit(str_replace($ignore, '', $this->data[$this->currentfield]))) {
+            $this->addErrorMessage('money');
+            $this->next = false;
+        }
+
+        // remove all characters except numbers, decimals, and negative signs
+        $this->data[$this->currentfield] = str_replace(['$', ','], '', $this->data[$this->currentfield]);
+
+        return $this;
+    }
+
+
+    /**
      * check for numeric values
      */
     public function numeric() {
         if($this->next && $this->exists() && !is_numeric($this->data[$this->currentfield])) {
             $this->addErrorMessage('numeric');
             $this->next = false;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * changes date string to a period (Ex: Y-m-01)
+     */
+    public function period() {
+        if($this->next && $this->exists()) {
+            try {
+                $dt = new DateTime($this->data[$this->currentfield]);
+                $this->data[$this->currentfield] = $dt->format('Y-m-01');
+            }
+            catch(Exception $e) {
+                $this->setErrorMessage($this->currentfield, '{field} is not a valid date string');
+                $this->addErrorMessage($this->currentfield);
+                $this->next = false;
+            }
         }
 
         return $this;
@@ -406,6 +520,23 @@ class Validator {
         return $this;
     }
 
+
+    /**
+     * check against a regex pattern
+     * @param string $pattern pattern to match
+     * @return this
+     */
+    public function regex($pattern) {
+        if($this->next && $this->exists()) {
+            if(preg_match($pattern, $this->data[$this->currentfield]) == false) {
+                $this->setErrorMessage('regex', '{field} does not match the defined pattern');
+                $this->addErrorMessage('regex');
+                $this->next = false;
+            }
+        }
+
+        return $this;
+    }
 
 
     /**
@@ -455,33 +586,6 @@ class Validator {
 
         return $this;
     }
-
-    /*
-			'zip' => '/^[0-9]{5}$/',
-			'zipplus4' => '/^[0-9]{5}-[0-9]{4}$/'
-
-            /^[0-9]{5}(?:-[0-9]{4})?$/   
-
-
-    */
-
-
-// @TODO
-/*
-
-dateafter($date)
-datebefore($date)
-contains($chars)
-match($pattern) OR regex($pattern)
-integer() - no period, signs, etc; or use numeric with allowed chars
-length($length) - combo of minlength and maxlength?
-null() ?
-period()
-zero() ?
-
-*/
-
-
 
 
 
