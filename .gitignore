@@ -1,0 +1,14 @@
+Thumbs.db 
+.DS_Store
+*.doc
+*.docx
+*.gif
+*.ico
+*.jpg
+*.log
+*.pdf
+*.png
+*.svg
+*.tmp
+*.xls
+*.xlsx
