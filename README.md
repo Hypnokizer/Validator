@@ -78,7 +78,7 @@ if($v->isValid() == false) {
 
 ## List of Methods
 
-[list of methods and descriptions]
+[list of methods and descriptions, checks]
 
 
 

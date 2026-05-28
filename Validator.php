@@ -1,6 +1,23 @@
 <?php 
+// @TODO extends Database...
+// @TODO finish docblock
+// @TODO check spacing
+// @TODO type hinting
+// @TODO periods!
 
-namespace App\Controllers;
+
+
+/**
+ * Quickly validate data
+ * 
+ * long desc @TODO. based on ?
+ * 
+ * @author Nathan Kizer <hypnokizer@gmail.com>
+ * @version 7.0
+ * @revision 2026-05-18 Added ability to chain methods
+ */
+
+namespace Hypnokizer;
 
 use DateTime;
 use Exception;
@@ -8,42 +25,42 @@ use Exception;
 class Validator {
 
     /**
-     * data to validate
+     * Data to validate.
      * @access protected;
      * @var array
      */
     protected $data;
 
     /**
-     * currently selected key/field to validate data
+     * Currently selected key/field to validate data.
      * @access protected
      * @var string
      */
     protected $currentfield;
 
     /**
-     * alias to use in error messages instead of field name
+     * Alias to use in error messages instead of field name.
      * @access protected
      * @var string
      */
     protected $currentalias;
 
     /**
-     * error message responses. you can change messages here. "{field}" refers to the field name
+     * Error message responses. you can change messages here. The "{field}" tag refers to the field name.
      * @access protected
      * @var array
      */
     protected $responses;
     
     /**
-     * error messages generated after the validation of each field
+     * Error messages generated after the validation of each field.
      * @access public
      * @var array
      */
     public $errors;
 
     /**
-     * check to see if the next validation on the field should run or not
+     * Check to see if the next validation on the field should run or not.
      * @access protected
      * @var bool
      */
@@ -51,8 +68,11 @@ class Validator {
 
 
     /**
-     * create new instance of validator class
-     * @param array $data data to validate
+     * Create new instance of validator class.
+     * 
+     * Sets many of the variable defaults. Defines the responses for error messages.
+     * 
+     * @param array $data Data to validate.
      * @return object Validator
      */
     public function __CONSTRUCT($data) {
@@ -61,7 +81,7 @@ class Validator {
         $this->currentalias = NULL;
 
         // @TODO auto pull POST or GET if DATA not given?
-        // @TODO basic escaping?
+        // @TODO basic escaping? trim() and htmlspecialchars() ?
         // @TODO give positive messages: {field} must contain characters A-Z or 0-9
         // @TODO set these here or use method setErrorMessage()?
         // @TODO match up responses to completed methods
@@ -98,7 +118,11 @@ class Validator {
 
     /**
      * create and add an error message after each validation field
-     * @TODO what does $others array do?
+     * @TODO can I add error responses like {@link construct()}?
+     * 
+     * @param string $type ???
+     * @param array $others Additional tags used in the error response.
+     * @return ???
      */
     protected function addErrorMessage($type, $others = array()) {
         // decide whether to use field name or alias
@@ -124,8 +148,11 @@ class Validator {
 
 
 
+
     /**
-     * check to see if the current field or field value exists. used in most validation check.
+     * Determines if the current field or value exists. Used in most validation checks.
+     * 
+     * @return bool 
      */
     protected function exists() {
         if(!isset($this->data[$this->currentfield]) || !$this->data[$this->currentfield]) {
@@ -139,22 +166,27 @@ class Validator {
 
 
     /**
-     * method to set custom error response within methods
-     * @param string $field field name for error message
-     * @param string $message body of the error message
+     * Sets custom error response within methods.
+     * 
+     * @param string $field Field name to associate error message.
+     * @param string $message Error message.
+     * @return object 
      */
-    protected function setErrorMessage($field, $message) {
+    protected function setErrorMessage(string $field, string $message) {
         $this->responses[$field] = $message;
     }
 
 
 
+
     /**
-     * set the field name to start the validation
-     * @param string $name name of the field/key as on data to validate
-     * @param string $alias optional alias to use on error messages instead of field name
+     * Sets the field name to start the validation.
+     * 
+     * @param string $name The name of the field/key to validate.
+     * @param string $alias Optional alias to use on error messages instead of the field name. 
+     * @return static 
      */
-    public function field($name, $alias = NULL) {
+    public function field(string $name, string $alias = NULL) {
         $this->currentfield = $name;
         $this->next = true;
         $this->currentalias = $alias;
@@ -168,10 +200,12 @@ class Validator {
     // @TODO create a null method to convert empty strings to NULL? watch for zero values showing as empty...
 
 
+
     /**
-     * check for alphabetic characters
-     * @param array $ignore optional characters to allow, including whitespace
-     * @return this
+     * Check for alphabetic characters.
+     * 
+     * @param array $ignore Optional characters to allow, including whitespace. 
+     * @return static 
      */
     public function alpha($ignore = array()) {
         if($this->next && $this->exists() && !ctype_alpha(str_replace($ignore, '', $this->data[$this->currentfield]))) {
@@ -183,9 +217,12 @@ class Validator {
     }
 
 
+
     /**
-     * check for alphanumeric characters
-     * @param array $ignore optional characters to allow, including whitespace
+     * Check for alphanumeric characters.
+     * 
+     * @param array $ignore Optional characters to allow, including whitespace.
+     * @return static 
      */
     public function alphanumeric($ignore = array()) {
         if($this->next && $this->exists() && !ctype_alnum(str_replace($ignore, '', $this->data[$this->currentfield]))) {
@@ -198,9 +235,12 @@ class Validator {
 
 
 
+
     /**
-     * changes case of string: capitalize, uppercase, lowercase
-     * @param string $case transformation to perform on text string
+     * Change case of string: capitalize, uppercase, lowercase.
+     * 
+     * @param string $case Transformation to perform on text string. 
+     * @return static 
      */
     public function changecase($case) {
         switch($case) {
@@ -221,11 +261,13 @@ class Validator {
     }
 
 
+
     /**
-     * check if the value contains characters
-     * @param string $chars set of characters to search for in one string (Ex: '@#abc123')
-     * @return this
-     * @TODO review the preg_match
+     * Check if the value contains specific characters.
+     * 
+     * @param string $chars Set of characters to search for in one string (Ex: '@#abc123').
+     * @return static 
+     * @todo review the preg_match
      */
     public function contains($chars) {
         if($this->next && $this->exists()) {
@@ -239,9 +281,11 @@ class Validator {
     }
 
 
+
     /**
-     * check if a valid date
-     * @return this
+     * Check for a valid date.
+     * 
+     * @return static 
      */
     public function date() {
         if($this->next && $this->exists()) {
@@ -260,9 +304,12 @@ class Validator {
 
 
 
+
     /**
-     * check if date comes after a given date
+     * Check if a date comes after the given date.
      * 
+     * @param string $date The date to compare. 
+     * @return static 
      */
     public function dateafter($date) {
         if($this->next && $this->exists()) {
@@ -288,9 +335,13 @@ class Validator {
     }
 
 
+
     /**
-     * check if date comes before a given date
-     * @TODO check same date comparisons
+     * Check if a date comes before the given date.
+     * 
+     * @param string $date The date to compare. 
+     * @return static 
+     * @todo check same date comparisons
      */
     public function datebefore($date) {
         if($this->next && $this->exists()) {
@@ -317,8 +368,11 @@ class Validator {
 
 
 
+
     /**
-     * check for valid email address
+     * Check for email address.
+     * 
+     * @return static 
      */
     public function email() {
         if($this->next && $this->exists() && !filter_var($this->data[$this->currentfield], FILTER_VALIDATE_EMAIL)) {
@@ -330,10 +384,12 @@ class Validator {
     }
 
 
+
     /**
-     * check if a value is in the list of approved values
-     * @param array $list list of valid values
-     * @return $this
+     * Check if a value is in the list of approved values.
+     * 
+     * @param array $list List of approved values.
+     * @return static 
      */
     public function enum($list) {
         if($this->next && $this->exists() && !in_array($this->data[$this->currentfield], $list)) {
@@ -347,9 +403,10 @@ class Validator {
 
 
     /**
-     * check if the value is equal
-     * @param mixed $value value to match
-     * @return this
+     * Check if value is equal to a given value.
+     * 
+     * @param mixed $value The value to match. Can be a string, integer, bool, or float.
+     * @return static 
      */
     public function equals($value) {
         if($this->next && $this->exists() && $this->data[$this->currentfield] !== $value) {
@@ -361,9 +418,11 @@ class Validator {
     }
 
 
+
     /**
-     * checks that value is an integer
-     * @return this
+     * Check for integer
+     * 
+     * @return static 
      */
     public function integer() {
         if($this->next && $this->exists() && filter_var($this->data[$this->currentfield], FILTER_VALIDATE_INT) === false) {
@@ -376,9 +435,10 @@ class Validator {
 
 
     /**
-     * checks string for exact length
-     * @param int $length length of string
-     * @return this
+     * Check for exact length of string.
+     * 
+     * @param int $length The required length of string.
+     * @return static 
      */
     public function length($length) {
         if($this->next && $this->exists() && strlen($this->data[$this->currentfield]) !== $length) {
@@ -391,7 +451,11 @@ class Validator {
 
 
     /**
-     * check for maximum length of a string
+     * Check for maximum length of string.
+     * 
+     * @param int $length The maximum allowed length of string.
+     * @return static 
+     * @see minlength()
      */
     public function maxlength($length) {
         if($this->next && $this->exists() && strlen($this->data[$this->currentfield]) > $length) {
@@ -404,9 +468,12 @@ class Validator {
 
 
     /**
-     * check if the value of an integer/number is not larger than the limit
-     * @param int $value maximum value of the number
+     * Check for maximum value of integer or float.
+     * 
+     * @param mixed $value The maximum value of the data. This can be an integer or float. 
+     * @return static 
      * @see numeric()
+     * @see minvalue()
      */
     public function maxvalue($value) {
         if($this->next && $this->exists() && $this->data[$this->currentfield] > $value) {
@@ -419,7 +486,11 @@ class Validator {
 
 
     /**
-     * check for minimum length of a string
+     * Check for minimum length of string.
+     * 
+     * @param int $length The maximum allowed length of string. 
+     * @return static
+     * @see maxlength() 
      */
     public function minlength($length) {
         if($this->next && $this->exists() && strlen($this->data[$this->currentfield]) < $length) {
@@ -432,9 +503,12 @@ class Validator {
 
 
     /**
-     * check if the value of an integer/number is not smaller than the limit
-     * @param int $value minimum value of the number
+     * Check for minimum value of integer or float.
+     * 
+     * @param mixed $value The minimum value of the data. This can be an integer or float. 
+     * @return static
      * @see numeric()
+     * @see maxvalue() 
      */
     public function minvalue($value) {
         if($this->next && $this->exists() && $this->data[$this->currentfield] < $value) {
@@ -446,9 +520,14 @@ class Validator {
     }
 
 
+
     /**
-     * changes string to decimal by removing dollar signs, commas, decimals, and negative signs
-     * @TODO review
+     * Check for currency. Changes string to decimal by removing dollar signs, commas, decimals, and negative signs.
+     * 
+     * @param array $ignore Optional characters to allow, including whitespace. 
+     * @return static 
+     * @todo review this 
+     * @todo type cast as float after removing symbols?
      */
     public function money($ignore = array('$', ',', '.', '-')) {
         // remove all characters other than numbers, dollars, commas; negative signs?
@@ -465,7 +544,9 @@ class Validator {
 
 
     /**
-     * check for numeric values
+     * Check for numeric characters.
+     * 
+     * @return static 
      */
     public function numeric() {
         if($this->next && $this->exists() && !is_numeric($this->data[$this->currentfield])) {
@@ -478,7 +559,10 @@ class Validator {
 
 
     /**
-     * changes date string to a period (Ex: Y-m-01)
+     * Check for a date string to a period (Ex: Y-m-01)
+     * 
+     * @return static
+     * @todo review this
      */
     public function period() {
         if($this->next && $this->exists()) {
@@ -497,8 +581,11 @@ class Validator {
     }
 
 
+
     /**
-     * check for valid U.S. phone number
+     * Check for valid U.S. phone number. Removes non-numeric characters and confirms length of string.
+     * 
+     * @return static 
      */
     public function phone() {
         // remove non-numeric characters from the string
@@ -521,10 +608,13 @@ class Validator {
     }
 
 
+
     /**
-     * check against a regex pattern
-     * @param string $pattern pattern to match
-     * @return this
+     * Check against a regex pattern
+     * 
+     * @param string $pattern The regex pattern to match. 
+     * @return static
+     * @todo verify if this needs slashes, etc in parameter. I believe it does.
      */
     public function regex($pattern) {
         if($this->next && $this->exists()) {
@@ -539,8 +629,11 @@ class Validator {
     }
 
 
+
     /**
-     * check if the required value exists
+     * Check if the required value exists.
+     * 
+     * @return static 
      */
     public function required() {
         if(!$this->exists()) {
@@ -552,8 +645,11 @@ class Validator {
     }
 
 
+
     /**
-     * check if a valid U.S. state abbreviation
+     * Check for valid U.S. state abbreviation.
+     * 
+     * @return static 
      */
     public function state() {
         // list of 51 valid states + D.C. (?)
@@ -574,7 +670,9 @@ class Validator {
 
 
     /**
-     * check for a valid zip code
+     * Check for valid U.S. zip code.
+     * 
+     * @return static 
      */
     public function zip() {
         $pattern = '/^[0-9]{5}(?:-[0-9]{4})?$/';
@@ -591,10 +689,10 @@ class Validator {
 
 
 
-
     /**
-     * check to see if all validations are successful
-     * @return bool
+     * Check to see if all validations are successful.
+     * 
+     * @return bool 
      */
     public function isValid() {
         if(empty($this->errors)) {
@@ -608,7 +706,9 @@ class Validator {
 
 
     /**
-     * show the object for debugging
+     * Display the entire object for debugging purposes.
+     * 
+     * @return string 
      */
     public function showObject() {
         echo '<pre>';
@@ -618,6 +718,5 @@ class Validator {
 
 
 } // end class
-
 
 ?>
