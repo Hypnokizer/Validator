@@ -79,6 +79,31 @@ if($v->isValid() == false) {
 ## List of Methods
 
 [list of methods and descriptions, checks]
+alpha
+alphanumeric
+changecase ?
+contains
+date
+dateafter
+datebefore
+email
+enum ?
+equals
+integer
+length
+maxlength
+maxvalue
+minlength
+minvalue
+money
+numeric
+period
+phone
+regex
+required
+state
+zip
+
 
 
 

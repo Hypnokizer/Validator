@@ -2,7 +2,7 @@
 
 require('Validator.php');
 
-use App\Controllers\Validator;
+use Hypnokizer\Validator;
 
 // test data to validate
 $data = array(

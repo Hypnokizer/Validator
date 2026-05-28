@@ -1,9 +1,6 @@
 <?php 
 // @TODO extends Database...
-// @TODO finish docblock
 // @TODO check spacing
-// @TODO type hinting
-// @TODO periods!
 
 
 
@@ -75,56 +72,69 @@ class Validator {
      * @param array $data Data to validate.
      * @return object Validator
      */
-    public function __CONSTRUCT($data) {
+    public function __CONSTRUCT(array $data) {
         $this->data = $data;
         $this->currentfield = NULL;
         $this->currentalias = NULL;
+        $this->responses = array();
 
         // @TODO auto pull POST or GET if DATA not given?
         // @TODO basic escaping? trim() and htmlspecialchars() ?
         // @TODO give positive messages: {field} must contain characters A-Z or 0-9
-        // @TODO set these here or use method setErrorMessage()?
-        // @TODO match up responses to completed methods
-        $this->responses = array(
-            'alpha' => '{field} must contain alphabetic characters only',
-            'alphanumeric' => '{field} must contain alphanumeric characters only',
-            'contains' => '{field} must contain any of the following characters: {chars}',
-            'date' => '{field} must be a valid date',
-            'dateafter' => '{field} is not after {date}',
-            'datebefore' => '{field} is not before {date}',
-            'email' => '{field} must be a valid email address',
-            'enum' => '{field} is not in the define list of accepted values',
-            'equals' => '{field} does not match',
-            'integer' => '{field} is not an integer',
-            'length' => '{field} should be {length} characters',
-            'match' => '{field} does not match',
-            'maxlength' => '{field} is too long',
-            'maxvalue' => '{field} is too high',
-            'minlength' => '{field} is too short',
-            'minvalue' => '{field} is too low',
-            'money' => '{field} contains non-currency characters',
-            'numeric' => '{field} must contain numbers only',
-            'phone' => '{field} is not a valid phone number',
-            'required' => '{field} is required',
-            'state' => '{field} is not a valid U.S. state',
-            'zip' => '{field} is not a valid zip code'
-        );
+        // @TODO match up responses to completed methods to verify!
+        $this->setErrorMessage('alpha', '{field} must contain alphabetic characters only');
+        $this->setErrorMessage('alphanumeric', '{field} must contain alphanumeric characters only');
+        $this->setErrorMessage('contains', '{field} must contain any of the following characters: {chars}');
+        $this->setErrorMessage('date', '{field} must be a valid date');
+        $this->setErrorMessage('dateafter', '{field} is not after {date}');
+        $this->setErrorMessage('datebefore', '{field} is not before {date}');
+        $this->setErrorMessage('email', '{field} must be a valid email address');
+        $this->setErrorMessage('enum', '{field} is not in the define list of accepted values'); // @TODO verify this one!
+        $this->setErrorMessage('equals', '{field} does not match');
+        $this->setErrorMessage('integer', '{field} is not an integer');
+        $this->setErrorMessage('length', '{field} should be {length} characters'); // @TODO verify
+        $this->setErrorMessage('match', '{field} does not match'); // @TODO needed?
+        $this->setErrorMessage('maxlength', '{field} is too long');
+        $this->setErrorMessage('maxvalue', '{field} is too high');
+        $this->setErrorMessage('minlength', '{field} is too short');
+        $this->setErrorMessage('minvalue', '{field} is too low');
+        $this->setErrorMessage('money', '{field} contains non-currency characters');
+        $this->setErrorMessage('numeric', '{field} must contain numbers only');
+        $this->setErrorMessage('phone', '{field} is not a valid phone number');
+        $this->setErrorMessage('regex', '{field} does not match the defined pattern');
+        $this->setErrorMessage('required', '{field} is required');
+        $this->setErrorMessage('state', '{field} is not a valid U.S. state');
+        $this->setErrorMessage('zip', '{field} is not a valid zip code');
 
         $this->errors = array();
         $this->next = true;
     }
 
 
+    /**
+     * Sets custom error response within methods. Creates response if one does not already exist in {@link responses} array. First set, then add!
+     * 
+     * @param string $field Field name to associate error message.
+     * @param string $message Error message.
+     * @return object 
+     * @see addErrorMessage()
+     */
+    protected function setErrorMessage(string $field, string $message) {
+        $this->responses[$field] = $message;
+    }
+
+
 
     /**
-     * create and add an error message after each validation field
+     * create and add an error message after each validation field. called within each check. If does not exist, use {@link setErrorMessage} to create it, then call this one.
      * @TODO can I add error responses like {@link construct()}?
      * 
      * @param string $type ???
      * @param array $others Additional tags used in the error response.
      * @return ???
+     * @see setErrorMessage()
      */
-    protected function addErrorMessage($type, $others = array()) {
+    protected function addErrorMessage(string $type, array $others = array()) {
         // decide whether to use field name or alias
         if($this->currentalias) {
             $fieldname = ucfirst($this->currentalias);
@@ -165,16 +175,7 @@ class Validator {
 
 
 
-    /**
-     * Sets custom error response within methods.
-     * 
-     * @param string $field Field name to associate error message.
-     * @param string $message Error message.
-     * @return object 
-     */
-    protected function setErrorMessage(string $field, string $message) {
-        $this->responses[$field] = $message;
-    }
+
 
 
 
@@ -185,6 +186,7 @@ class Validator {
      * @param string $name The name of the field/key to validate.
      * @param string $alias Optional alias to use on error messages instead of the field name. 
      * @return static 
+     * @todo basic sanitize here?
      */
     public function field(string $name, string $alias = NULL) {
         $this->currentfield = $name;
@@ -207,7 +209,7 @@ class Validator {
      * @param array $ignore Optional characters to allow, including whitespace. 
      * @return static 
      */
-    public function alpha($ignore = array()) {
+    public function alpha(array $ignore = array()) {
         if($this->next && $this->exists() && !ctype_alpha(str_replace($ignore, '', $this->data[$this->currentfield]))) {
             $this->addErrorMessage('alpha');
             $this->next = false;
@@ -224,7 +226,7 @@ class Validator {
      * @param array $ignore Optional characters to allow, including whitespace.
      * @return static 
      */
-    public function alphanumeric($ignore = array()) {
+    public function alphanumeric(array $ignore = array()) {
         if($this->next && $this->exists() && !ctype_alnum(str_replace($ignore, '', $this->data[$this->currentfield]))) {
             $this->addErrorMessage('alphanumeric');
             $this->next = false;
@@ -242,7 +244,7 @@ class Validator {
      * @param string $case Transformation to perform on text string. 
      * @return static 
      */
-    public function changecase($case) {
+    public function changecase(string $case) {
         switch($case) {
             case 'capitalize':
                 $this->data[$this->currentfield] = ucwords(strtolower($this->data[$this->currentfield]), " \t\r\n\f\v'-");
@@ -269,7 +271,7 @@ class Validator {
      * @return static 
      * @todo review the preg_match
      */
-    public function contains($chars) {
+    public function contains(string $chars) {
         if($this->next && $this->exists()) {
             if(preg_match("/[" . $chars . "]/", $this->data[$this->currentfield]) == false) {
                 $this->addErrorMessage('contains', ['chars' => $chars]);
@@ -311,7 +313,7 @@ class Validator {
      * @param string $date The date to compare. 
      * @return static 
      */
-    public function dateafter($date) {
+    public function dateafter(string $date) {
         if($this->next && $this->exists()) {
             try {
                 $dt1 = new DateTime($this->data[$this->currentfield]);
@@ -343,7 +345,7 @@ class Validator {
      * @return static 
      * @todo check same date comparisons
      */
-    public function datebefore($date) {
+    public function datebefore(string $date) {
         if($this->next && $this->exists()) {
             try {
                 $dt1 = new DateTime($this->data[$this->currentfield]);
@@ -391,7 +393,7 @@ class Validator {
      * @param array $list List of approved values.
      * @return static 
      */
-    public function enum($list) {
+    public function enum(array $list) {
         if($this->next && $this->exists() && !in_array($this->data[$this->currentfield], $list)) {
             $this->addErrorMessage('enum');
             $this->next = false;
@@ -408,7 +410,7 @@ class Validator {
      * @param mixed $value The value to match. Can be a string, integer, bool, or float.
      * @return static 
      */
-    public function equals($value) {
+    public function equals(string|int|bool|float $value) {
         if($this->next && $this->exists() && $this->data[$this->currentfield] !== $value) {
             $this->addErrorMessage('equals');
             $this->next = false;
@@ -420,7 +422,7 @@ class Validator {
 
 
     /**
-     * Check for integer
+     * Check for integer.
      * 
      * @return static 
      */
@@ -440,7 +442,7 @@ class Validator {
      * @param int $length The required length of string.
      * @return static 
      */
-    public function length($length) {
+    public function length(int $length) {
         if($this->next && $this->exists() && strlen($this->data[$this->currentfield]) !== $length) {
             $this->addErrorMessage('length', ['length' => $length]);
             $this->next = false;
@@ -457,7 +459,7 @@ class Validator {
      * @return static 
      * @see minlength()
      */
-    public function maxlength($length) {
+    public function maxlength(int $length) {
         if($this->next && $this->exists() && strlen($this->data[$this->currentfield]) > $length) {
             $this->addErrorMessage('maxlength');
             $this->next = false;
@@ -475,7 +477,7 @@ class Validator {
      * @see numeric()
      * @see minvalue()
      */
-    public function maxvalue($value) {
+    public function maxvalue(int|float $value) {
         if($this->next && $this->exists() && $this->data[$this->currentfield] > $value) {
             $this->addErrorMessage('maxvalue');
             $this->next = false;
@@ -492,7 +494,7 @@ class Validator {
      * @return static
      * @see maxlength() 
      */
-    public function minlength($length) {
+    public function minlength(int $length) {
         if($this->next && $this->exists() && strlen($this->data[$this->currentfield]) < $length) {
             $this->addErrorMessage('minlength');
             $this->next = false;
@@ -510,7 +512,7 @@ class Validator {
      * @see numeric()
      * @see maxvalue() 
      */
-    public function minvalue($value) {
+    public function minvalue(int|float $value) {
         if($this->next && $this->exists() && $this->data[$this->currentfield] < $value) {
             $this->addErrorMessage('minvalue');
             $this->next = false;
@@ -529,7 +531,7 @@ class Validator {
      * @todo review this 
      * @todo type cast as float after removing symbols?
      */
-    public function money($ignore = array('$', ',', '.', '-')) {
+    public function money(array $ignore = array('$', ',', '.', '-')) {
         // remove all characters other than numbers, dollars, commas; negative signs?
         if($this->next && $this->exists() && !ctype_digit(str_replace($ignore, '', $this->data[$this->currentfield]))) {
             $this->addErrorMessage('money');
@@ -559,7 +561,7 @@ class Validator {
 
 
     /**
-     * Check for a date string to a period (Ex: Y-m-01)
+     * Check for a date string to a period (Ex: Y-m-01).
      * 
      * @return static
      * @todo review this
@@ -610,16 +612,15 @@ class Validator {
 
 
     /**
-     * Check against a regex pattern
+     * Check against a regex pattern.
      * 
-     * @param string $pattern The regex pattern to match. 
+     * @param string $pattern The regex pattern to match. This should be a complete regex string.
      * @return static
      * @todo verify if this needs slashes, etc in parameter. I believe it does.
      */
-    public function regex($pattern) {
+    public function regex(string $pattern) {
         if($this->next && $this->exists()) {
             if(preg_match($pattern, $this->data[$this->currentfield]) == false) {
-                $this->setErrorMessage('regex', '{field} does not match the defined pattern');
                 $this->addErrorMessage('regex');
                 $this->next = false;
             }
