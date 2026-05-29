@@ -1,8 +1,4 @@
 <?php 
-// @TODO extends Database...
-// @TODO check spacing
-
-
 
 /**
  * Quickly validate data
@@ -23,10 +19,10 @@ class Validator {
 
     /**
      * Data to validate.
-     * @access protected;
+     * @access public;
      * @var array
      */
-    protected $data;
+    public $data;
 
     /**
      * Currently selected key/field to validate data.
@@ -72,32 +68,53 @@ class Validator {
      * @param array $data Data to validate.
      * @return object Validator
      */
-    public function __CONSTRUCT(array $data) {
-        $this->data = $data;
+    public function __CONSTRUCT(array $data = NULL) {
+
+        // parent::__CONSTRUCT(); // @TODO when extending Database
+
+        // define data to validate
+        if(empty($data)) {
+            if($_POST) {
+                $this->data = $_POST;
+            }
+            elseif($_GET) {
+                $this->data = $_GET;
+            }
+            else {
+                $this->data = array();
+            }
+        }
+        else {
+            $this->data = $data;
+        }
+
+        // basic sanitization
+        if(!empty($this->data)) {
+            foreach($this->data as $key => $val) {
+                $this->data[$key] = trim($val);
+            }
+        }
+
         $this->currentfield = NULL;
         $this->currentalias = NULL;
         $this->responses = array();
 
-        // @TODO auto pull POST or GET if DATA not given?
-        // @TODO basic escaping? trim() and htmlspecialchars() ?
-        // @TODO give positive messages: {field} must contain characters A-Z or 0-9
-        // @TODO match up responses to completed methods to verify!
+        // @TODO create custom error messages for special cases?
         $this->setErrorMessage('alpha', '{field} must contain alphabetic characters only');
         $this->setErrorMessage('alphanumeric', '{field} must contain alphanumeric characters only');
         $this->setErrorMessage('contains', '{field} must contain any of the following characters: {chars}');
-        $this->setErrorMessage('date', '{field} must be a valid date');
+        $this->setErrorMessage('date', '{field} must be a valid date format');
         $this->setErrorMessage('dateafter', '{field} is not after {date}');
         $this->setErrorMessage('datebefore', '{field} is not before {date}');
         $this->setErrorMessage('email', '{field} must be a valid email address');
-        $this->setErrorMessage('enum', '{field} is not in the define list of accepted values'); // @TODO verify this one!
-        $this->setErrorMessage('equals', '{field} does not match');
+        $this->setErrorMessage('enum', '{field} is not in the define list of accepted values'); // @TODO rename to inlist()?
+        $this->setErrorMessage('equals', '{field} does not match {value}');
         $this->setErrorMessage('integer', '{field} is not an integer');
-        $this->setErrorMessage('length', '{field} should be {length} characters'); // @TODO verify
-        $this->setErrorMessage('match', '{field} does not match'); // @TODO needed?
-        $this->setErrorMessage('maxlength', '{field} is too long');
-        $this->setErrorMessage('maxvalue', '{field} is too high');
-        $this->setErrorMessage('minlength', '{field} is too short');
-        $this->setErrorMessage('minvalue', '{field} is too low');
+        $this->setErrorMessage('length', '{field} should be {length} characters');
+        $this->setErrorMessage('maxlength', '{field} must be less than {length} characters');
+        $this->setErrorMessage('maxvalue', '{field} must be {value} or less');
+        $this->setErrorMessage('minlength', '{field} must be longer than {length} characters');
+        $this->setErrorMessage('minvalue', '{field} must be {value} or more');
         $this->setErrorMessage('money', '{field} contains non-currency characters');
         $this->setErrorMessage('numeric', '{field} must contain numbers only');
         $this->setErrorMessage('phone', '{field} is not a valid phone number');
@@ -122,7 +139,6 @@ class Validator {
     protected function setErrorMessage(string $field, string $message) {
         $this->responses[$field] = $message;
     }
-
 
 
     /**
@@ -156,9 +172,6 @@ class Validator {
     }
 
 
-
-
-
     /**
      * Determines if the current field or value exists. Used in most validation checks.
      * 
@@ -174,19 +187,12 @@ class Validator {
     }
 
 
-
-
-
-
-
-
     /**
      * Sets the field name to start the validation.
      * 
      * @param string $name The name of the field/key to validate.
      * @param string $alias Optional alias to use on error messages instead of the field name. 
      * @return static 
-     * @todo basic sanitize here?
      */
     public function field(string $name, string $alias = NULL) {
         $this->currentfield = $name;
@@ -196,11 +202,7 @@ class Validator {
     }
 
 
-
-
-
     // @TODO create a null method to convert empty strings to NULL? watch for zero values showing as empty...
-
 
 
     /**
@@ -219,7 +221,6 @@ class Validator {
     }
 
 
-
     /**
      * Check for alphanumeric characters.
      * 
@@ -234,8 +235,6 @@ class Validator {
 
         return $this;
     }
-
-
 
 
     /**
@@ -263,7 +262,6 @@ class Validator {
     }
 
 
-
     /**
      * Check if the value contains specific characters.
      * 
@@ -281,7 +279,6 @@ class Validator {
 
         return $this;
     }
-
 
 
     /**
@@ -303,8 +300,6 @@ class Validator {
 
         return $this;
     }
-
-
 
 
     /**
@@ -335,7 +330,6 @@ class Validator {
 
         return $this;
     }
-
 
 
     /**
@@ -369,12 +363,11 @@ class Validator {
     }
 
 
-
-
     /**
      * Check for email address.
      * 
      * @return static 
+     * @todo convert to all lowercase?
      */
     public function email() {
         if($this->next && $this->exists() && !filter_var($this->data[$this->currentfield], FILTER_VALIDATE_EMAIL)) {
@@ -384,7 +377,6 @@ class Validator {
 
         return $this;
     }
-
 
 
     /**
@@ -403,7 +395,6 @@ class Validator {
     }
 
 
-
     /**
      * Check if value is equal to a given value.
      * 
@@ -412,13 +403,12 @@ class Validator {
      */
     public function equals(string|int|bool|float $value) {
         if($this->next && $this->exists() && $this->data[$this->currentfield] !== $value) {
-            $this->addErrorMessage('equals');
+            $this->addErrorMessage('equals', ['value' => $value]);
             $this->next = false;
         }
 
         return $this;
     }
-
 
 
     /**
@@ -461,7 +451,7 @@ class Validator {
      */
     public function maxlength(int $length) {
         if($this->next && $this->exists() && strlen($this->data[$this->currentfield]) > $length) {
-            $this->addErrorMessage('maxlength');
+            $this->addErrorMessage('maxlength', ['length' => $length]);
             $this->next = false;
         }
 
@@ -479,7 +469,7 @@ class Validator {
      */
     public function maxvalue(int|float $value) {
         if($this->next && $this->exists() && $this->data[$this->currentfield] > $value) {
-            $this->addErrorMessage('maxvalue');
+            $this->addErrorMessage('maxvalue', ['value' => $value]);
             $this->next = false;
         }
 
@@ -496,7 +486,7 @@ class Validator {
      */
     public function minlength(int $length) {
         if($this->next && $this->exists() && strlen($this->data[$this->currentfield]) < $length) {
-            $this->addErrorMessage('minlength');
+            $this->addErrorMessage('minlength', ['length' => $length]);
             $this->next = false;
         }
 
@@ -514,13 +504,12 @@ class Validator {
      */
     public function minvalue(int|float $value) {
         if($this->next && $this->exists() && $this->data[$this->currentfield] < $value) {
-            $this->addErrorMessage('minvalue');
+            $this->addErrorMessage('minvalue', ['value' => $value]);
             $this->next = false;
         }
 
         return $this;
     }
-
 
 
     /**
@@ -583,7 +572,6 @@ class Validator {
     }
 
 
-
     /**
      * Check for valid U.S. phone number. Removes non-numeric characters and confirms length of string.
      * 
@@ -610,7 +598,6 @@ class Validator {
     }
 
 
-
     /**
      * Check against a regex pattern.
      * 
@@ -630,7 +617,6 @@ class Validator {
     }
 
 
-
     /**
      * Check if the required value exists.
      * 
@@ -644,7 +630,6 @@ class Validator {
 
         return $this;
     }
-
 
 
     /**
@@ -687,9 +672,6 @@ class Validator {
     }
 
 
-
-
-
     /**
      * Check to see if all validations are successful.
      * 
@@ -703,7 +685,6 @@ class Validator {
             return false;
         }
     }
-
 
 
     /**
