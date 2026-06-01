@@ -3,11 +3,13 @@
 /**
  * Quickly validate data
  * 
- * long desc @TODO. based on ?
+ * Quickly validate a dataset. Data can be specified or automatically pulled in via POST or GET data.
  * 
  * @author Nathan Kizer <hypnokizer@gmail.com>
  * @version 7.0
  * @revision 2026-05-18 Added ability to chain methods
+ * @todo Create a null() method to convert empty strings to NULL? Watch for zero values showing as empty.
+ * @todo Create a custom error message for special cases?
  */
 
 namespace Hypnokizer;
@@ -99,7 +101,7 @@ class Validator {
         $this->currentalias = NULL;
         $this->responses = array();
 
-        // @TODO create custom error messages for special cases?
+        
         $this->setErrorMessage('alpha', '{field} must contain alphabetic characters only');
         $this->setErrorMessage('alphanumeric', '{field} must contain alphanumeric characters only');
         $this->setErrorMessage('contains', '{field} must contain any of the following characters: {chars}');
@@ -202,7 +204,7 @@ class Validator {
     }
 
 
-    // @TODO create a null method to convert empty strings to NULL? watch for zero values showing as empty...
+    
 
 
     /**

@@ -1,7 +1,7 @@
 @TODO rework this file
 
 # Validator Class
-This is a simple validator class. It requires no dependencies. It is based on `https://github.com/devwithkunal/php-validator-class`.
+This is a simple validator class. It requires no dependencies. It is based on `https://github.com/devwithkunal/php-validator-class`. Easily validate common data types. If a dataset is not specified, the class imports POST or GET data to validate.
 
 
 
@@ -30,7 +30,7 @@ if($v->isValid() == false) {
 ```
 require('Validator.php');
 
-use App\Controllers\Validator;
+use Hypnokizer;
 
 // test data to validate
 $data = array(
@@ -78,33 +78,61 @@ if($v->isValid() == false) {
 
 ## List of Methods
 
-[list of methods and descriptions, checks]
-alpha
-alphanumeric
-changecase ?
-contains
-date
-dateafter
-datebefore
-email
-enum ?
-equals
-integer
-length
-maxlength
-maxvalue
-minlength
-minvalue
-money
-numeric
-period
-phone
-regex
-required
-state
-zip
+- alpha
+- alphanumeric
+- changecase ?
+- contains
+- date
+- dateafter
+- datebefore
+- email
+- enum ?
+- equals
+- integer
+- length
+- maxlength
+- maxvalue
+- minlength
+- minvalue
+- money
+- numeric
+- period
+- phone
+- regex
+- required
+- state
+- zip
 
 
+
+## Validation methods available
+
+|Method|Description|
+|------|-----------|
+|`alpha(array $ignore)`                     |Check for alphabetic characters.|
+|`alphanumeric(array $ignore)`              |Check for alphanumeric characters.|
+|`changecase(string $case)`                 |Change case of string: capitalize, uppercase, lowercase.|
+|`contains(string $chars)`                  |Check if the value contains specific characters.|
+|`date()`                                   |Check for a valid date.|
+|`dateafter(string $date)`                  |Check if a date comes after the given date.|
+|`datebefore(string $date)`                 |Check if a date comes before the given date.|
+|`email()`                                  |Check for email address.|
+|`enum(array $list)`                        |Check if a value is in the list of approved values.|
+|`equals(string\|int\|bool\|float $value)`  |Check if value is equal to a given value.|
+|`integer()`                                |Check for integer.|
+|`length(int $length)`                      |Check for exact length of string.|
+|`maxlength(int $length)`                   |Check for maximum length of string.|
+|`maxvalue(int\|float $value)`              |Check for maximum value of integer or float.|
+|`minlength(int $length)`                   |Check for minimum length of string.|
+|`minvalue(int\|float $value)`              |Check for minimum value of integer or float.|
+|`money(array $ignore)`                     |Check for currency. Changes string to decimal by removing dollar signs, commas, decimals, and negative signs.|
+|`numeric()`                                |Check for numeric characters.|
+|`period()`                                 |Check for a date string and convert it to a period (Ex: Y-m-01).|
+|`phone()`                                  |Check for valid U.S. phone number. Removes non-numeric characters and confirms length of string.|
+|`regex(string $pattern)`                   |Check against a regex pattern.|
+|`required()`                               |Check if the required value exists.|
+|`state()`                                  |Check for valid U.S. state abbreviation.|
+|`zip()`                                    |Check for valid U.S. zip code.|
 
 
 
