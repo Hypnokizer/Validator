@@ -26,6 +26,17 @@ if($v->isValid() == false) {
 
 
 
+## Methods???
+Some methods to use
+| Methods | Return | Description |
+|--------|--------|-------------|
+| `field(str $name, str? $alias)` | $this | Set the field name to start validation. <br/> param *string* `$name` - Name of the field/key as on data to validate. <br/> param *string* `$alias` - (optional) Alias use on error messages instead of field name. |
+| `set_response_messages(arr $messages)` | void | Function to set/extend custom error. <br /> Use associative array of messages as the parameter. See the messages format on `Validator.php` file at line `20`.
+| `is_valid()` | boolean | Check if all validations are successfull.
+
+
+
+
 ## Example
 ```
 require('Validator.php');
@@ -76,32 +87,9 @@ if($v->isValid() == false) {
 ```
 
 
-## List of Methods
 
-- alpha
-- alphanumeric
-- changecase ?
-- contains
-- date
-- dateafter
-- datebefore
-- email
-- enum ?
-- equals
-- integer
-- length
-- maxlength
-- maxvalue
-- minlength
-- minvalue
-- money
-- numeric
-- period
-- phone
-- regex
-- required
-- state
-- zip
+
+
 
 
 
@@ -109,60 +97,32 @@ if($v->isValid() == false) {
 
 |Method|Description|
 |------|-----------|
-|`alpha(array $ignore)`                     |Check for alphabetic characters.|
-|`alphanumeric(array $ignore)`              |Check for alphanumeric characters.|
-|`changecase(string $case)`                 |Change case of string: capitalize, uppercase, lowercase.|
-|`contains(string $chars)`                  |Check if the value contains specific characters.|
-|`date()`                                   |Check for a valid date.|
-|`dateafter(string $date)`                  |Check if a date comes after the given date.|
-|`datebefore(string $date)`                 |Check if a date comes before the given date.|
-|`email()`                                  |Check for email address.|
-|`enum(array $list)`                        |Check if a value is in the list of approved values.|
-|`equals(string\|int\|bool\|float $value)`  |Check if value is equal to a given value.|
-|`integer()`                                |Check for integer.|
-|`length(int $length)`                      |Check for exact length of string.|
-|`maxlength(int $length)`                   |Check for maximum length of string.|
-|`maxvalue(int\|float $value)`              |Check for maximum value of integer or float.|
-|`minlength(int $length)`                   |Check for minimum length of string.|
-|`minvalue(int\|float $value)`              |Check for minimum value of integer or float.|
-|`money(array $ignore)`                     |Check for currency. Changes string to decimal by removing dollar signs, commas, decimals, and negative signs.|
-|`numeric()`                                |Check for numeric characters.|
-|`period()`                                 |Check for a date string and convert it to a period (Ex: Y-m-01).|
-|`phone()`                                  |Check for valid U.S. phone number. Removes non-numeric characters and confirms length of string.|
-|`regex(string $pattern)`                   |Check against a regex pattern.|
-|`required()`                               |Check if the required value exists.|
-|`state()`                                  |Check for valid U.S. state abbreviation.|
-|`zip()`                                    |Check for valid U.S. zip code.|
+|`alpha($ignore)`                    |Check for alphabetic characters.|
+|`alphanumeric($ignore)`             |Check for alphanumeric characters.|
+|`changecase($case)`                 |Change case of string: capitalize, uppercase, lowercase.|
+|`contains($chars)`                  |Check if the value contains specific characters.|
+|`date()`                            |Check for a valid date.|
+|`dateafter($date)`                  |Check if a date comes after the given date.|
+|`datebefore($date)`                 |Check if a date comes before the given date.|
+|`email()`                           |Check for email address.|
+|`enum($list)`                       |Check if a value is in the list of approved values.|
+|`equals($value)`                    |Check if value is equal to a given value.|
+|`integer()`                         |Check for integer.|
+|`length($length)`                   |Check for exact length of string.|
+|`maxlength($length)`                |Check for maximum length of string.|
+|`maxvalue($value)`                  |Check for maximum value of integer or float.|
+|`minlength($length)`                |Check for minimum length of string.|
+|`minvalue($value)`                  |Check for minimum value of integer or float.|
+|`money($ignore)`                    |Check for currency. Changes string to decimal by removing dollar signs, commas, decimals, and negative signs.|
+|`numeric()`                         |Check for numeric characters.|
+|`period()`                          |Check for a date string and convert it to a period (Ex: Y-m-01).|
+|`phone()`                           |Check for valid U.S. phone number. Removes non-numeric characters and confirms length of string.|
+|`regex($pattern)`                   |Check against a regex pattern.|
+|`required()`                        |Check if the required value exists.|
+|`state()`                           |Check for valid U.S. state abbreviation.|
+|`zip()`                             |Check for valid U.S. zip code.|
 
 
 
 
-## Methods
-Some methods to use
-| Methods | Return | Description |
-|--------|--------|-------------|
-| `field(str $name, str? $alias)` | $this | Set the field name to start validation. <br/> param *string* `$name` - Name of the field/key as on data to validate. <br/> param *string* `$alias` - (optional) Alias use on error messages instead of field name. |
-| `set_response_messages(arr $messages)` | void | Function to set/extend custom error. <br /> Use associative array of messages as the parameter. See the messages format on `Validator.php` file at line `20`.
-| `is_valid()` | boolean | Check if all validations are successfull.
-
-Here is a list of the validators currently available.
-
-| Validator | Description |
-| ----------|-------------|
-| `required()` | Check if the value exists. |
-| `alpha(arr $ignore)` | Check if the value is alpha only. <br/> param *array* `$ignore` - (optional) add charectors to allow. Ex. ['@', ' '] |
-| `alpha_num()` | Check if the value is alpha numeric only. <br/> param *array* `$ignore` - (optional) add charectors to allow. Ex. ['@', ' '] |
-| `numeric()` | Check if the value is numeric only. |
-| `email()` | Check if the value is a valid email. |
-| `max_len(int $size)` | Check if length of the value is larger than the limit. <br/> param *int* `$size` - Max length of charectors of the value. |
-| `min_len(int $size)` | Check if length of the value is smaller than the limit. <br/> param *int* `$size` - Min length of charectors of the value. |
-| `max_val(int $val)` | Check if the value of intiger/number is not larger than the limit. <br/> param *int* `$val` - Max value of the number. |
-| `min_val(int $val)` | Check if the value of intiger/number is not smaller than the limit. <br/> param *int* `$val` - Min value of the number. |
-| `enum(arr $list)` | Check if the value is in the list. <br/>  param *array* `$list` - List of valid values. |
-| `equals(mix $value)` | Check if the value is equal. <br/> param *mixed* `$value` - Value to match equal. |
-| `date(string $date)` | Check if the value is a valid date. <br/> param *string* `$format` - Format of the date. (ex. Y-m-d) Check out [PHP Manual](https://www.php.net/manual/en/datetime.format.php) for more. |
-| `date_after(string $date)` | Check if the date appeared after the specified date. <br/> param *string* `$date` - Use format Y-m-d (ex. 2023-01-15). |
-| `date_before(string $date)` | Check if the date appeared before the specified date. <br/> param *string* `$date` - Use format Y-m-d (ex. 2023-01-15). |
-| `must_contain(str $chars)` | Check if the value must contains some charectors. <br/> param *string* `$chars` - Set of chars in one string. Ex. "@#&abc123"|
-| `match(str $pattern)` | Check if the value matchs a pattern. <br/> param *string* `$patarn` - Rejex pattern to match. |
 
