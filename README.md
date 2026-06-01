@@ -1,4 +1,5 @@
 @TODO rework this file
+@TODO show example of custom error message using customError()
 
 # Validator Class
 This is a simple validator class. It requires no dependencies. It is based on `https://github.com/devwithkunal/php-validator-class`. Easily validate common data types. If a dataset is not specified, the class imports POST or GET data to validate.
@@ -41,7 +42,7 @@ Some methods to use
 ```
 require('Validator.php');
 
-use Hypnokizer;
+use Hypnokizer\Validator;
 
 // test data to validate
 $data = array(

@@ -151,6 +151,8 @@ class Validator {
      * @param array $others Additional tags used in the error response.
      * @return ???
      * @see setErrorMessage()
+     * @todo define return value 
+     * @todo only capitalize field if at the first of string
      */
     protected function addErrorMessage(string $type, array $others = array()) {
         // decide whether to use field name or alias
@@ -171,6 +173,17 @@ class Validator {
 
         // add response to errors
         $this->errors[$this->currentfield] = $message;
+    }
+
+
+    /**
+     * set then add a custom message... 
+     * @todo make add() and set() protected
+     */
+    public function customError(string $message) {
+        $this->setErrorMessage($this->currentfield, $message);
+
+        $this->addErrorMessage($this->currentfield);
     }
 
 
@@ -552,7 +565,7 @@ class Validator {
 
 
     /**
-     * Check for a date string to a period (Ex: Y-m-01).
+     * Check for a date string and convert it to a period (Ex: Y-m-01).
      * 
      * @return static
      * @todo review this
