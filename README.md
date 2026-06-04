@@ -1,12 +1,12 @@
 # Validator Class
-This is a simple validator class. It requires no dependencies. It is based on `https://github.com/devwithkunal/php-validator-class`. Easily validate common data types. If a dataset is not specified, the class imports POST or GET data to validate.
+This is a simple validator class. It can be used without dependancies, but extends the database class. It is based on `https://github.com/devwithkunal/php-validator-class`. 
 
 
 
 
 ## Basic Use
 
-Create the class instance. The constructor is the associative data array to be validated. If the `$data` is not specified, the class attempts to pull in POST data, then GET data.
+Create the class instance. The constructor parameter is an associative data array to be validated containing key value pairs of field names and values. If the `$data` is not specified, the class attempts to pull in POST data, then GET data.
 
 ```
 $v = new Validator($data);
