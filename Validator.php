@@ -8,8 +8,6 @@
  * @author Nathan Kizer <hypnokizer@gmail.com>
  * @version 7.0
  * @revision 2026-05-18 Added ability to chain methods
- * @todo Create a null() method to convert empty strings to NULL? Watch for zero values showing as empty.
- * @todo Create a custom error message for special cases?
  */
 
 namespace Hypnokizer;
@@ -104,12 +102,12 @@ class Validator {
         
         $this->setErrorMessage('alpha', '{field} must contain alphabetic characters only');
         $this->setErrorMessage('alphanumeric', '{field} must contain alphanumeric characters only');
-        $this->setErrorMessage('contains', '{field} must contain any of the following characters: {chars}');
+        $this->setErrorMessage('contains', '{field} must contain as least one of the following characters: {chars}');
         $this->setErrorMessage('date', '{field} must be a valid date format');
         $this->setErrorMessage('dateafter', '{field} is not after {date}');
         $this->setErrorMessage('datebefore', '{field} is not before {date}');
         $this->setErrorMessage('email', '{field} must be a valid email address');
-        $this->setErrorMessage('enum', '{field} is not in the define list of accepted values'); // @TODO rename to inlist()?
+        $this->setErrorMessage('enum', '{field} is not in the define list of accepted values'); 
         $this->setErrorMessage('equals', '{field} does not match {value}');
         $this->setErrorMessage('integer', '{field} is not an integer');
         $this->setErrorMessage('length', '{field} should be {length} characters');
@@ -131,7 +129,7 @@ class Validator {
 
 
     /**
-     * Sets custom error response within methods. Creates response if one does not already exist in {@link responses} array. First set, then add!
+     * Sets custom error response within methods. Creates response if one does not already exist in {@link responses} array. The message is set then added.
      * 
      * @param string $field Field name to associate error message.
      * @param string $message Error message.
@@ -144,15 +142,12 @@ class Validator {
 
 
     /**
-     * create and add an error message after each validation field. called within each check. If does not exist, use {@link setErrorMessage} to create it, then call this one.
-     * @TODO can I add error responses like {@link construct()}?
+     * Adds a created error message after each validation field. This method is called within each validation method.
      * 
-     * @param string $type ???
+     * @param string $type Name of the field or key to validate.
      * @param array $others Additional tags used in the error response.
-     * @return ???
+     * @return static
      * @see setErrorMessage()
-     * @todo define return value 
-     * @todo only capitalize field if at the first of string
      */
     protected function addErrorMessage(string $type, array $others = array()) {
         // decide whether to use field name or alias
@@ -177,8 +172,12 @@ class Validator {
 
 
     /**
-     * set then add a custom message... 
-     * @todo make add() and set() protected
+     * Sets then adds a custom error message.
+     * 
+     * @param string $message Error message.
+     * @return static
+     * @see setErrorMessage()
+     * @see addErrorMessage()
      */
     public function customError(string $message) {
         $this->setErrorMessage($this->currentfield, $message);
@@ -253,7 +252,7 @@ class Validator {
 
 
     /**
-     * Change case of string: capitalize, uppercase, lowercase.
+     * Change case of string: capitalize, uppercase, lowercase. This method alters the data. 
      * 
      * @param string $case Transformation to perform on text string. 
      * @return static 
@@ -282,7 +281,6 @@ class Validator {
      * 
      * @param string $chars Set of characters to search for in one string (Ex: '@#abc123').
      * @return static 
-     * @todo review the preg_match
      */
     public function contains(string $chars) {
         if($this->next && $this->exists()) {
@@ -337,7 +335,7 @@ class Validator {
             }
 
             // compare dates
-            if($dt1 < $dt2) {
+            if($dt1 <= $dt2) {
                 $this->addErrorMessage('dateafter', ['date' => $date]);
                 $this->next = false;
             }
@@ -352,7 +350,6 @@ class Validator {
      * 
      * @param string $date The date to compare. 
      * @return static 
-     * @todo check same date comparisons
      */
     public function datebefore(string $date) {
         if($this->next && $this->exists()) {
@@ -368,7 +365,7 @@ class Validator {
             }
 
             // compare dates
-            if($dt1 > $dt2) {
+            if($dt1 >= $dt2) {
                 $this->addErrorMessage('datebefore', ['date' => $date]);
                 $this->next = false;
             }
@@ -379,16 +376,18 @@ class Validator {
 
 
     /**
-     * Check for email address.
+     * Check for email address. This method alters the data by converting it to lowercase.
      * 
      * @return static 
-     * @todo convert to all lowercase?
      */
     public function email() {
         if($this->next && $this->exists() && !filter_var($this->data[$this->currentfield], FILTER_VALIDATE_EMAIL)) {
             $this->addErrorMessage('email');
             $this->next = false;
         }
+
+        // convert to all lowercase
+        $this->data[$this->currentfield] = strtolower($this->data[$this->currentfield]);
 
         return $this;
     }
@@ -528,15 +527,13 @@ class Validator {
 
 
     /**
-     * Check for currency. Changes string to decimal by removing dollar signs, commas, decimals, and negative signs.
+     * Check for currency. This method alters the data by changing string to decimal and by removing dollar signs, commas, decimals, and negative signs.
      * 
      * @param array $ignore Optional characters to allow, including whitespace. 
      * @return static 
-     * @todo review this 
-     * @todo type cast as float after removing symbols?
      */
     public function money(array $ignore = array('$', ',', '.', '-')) {
-        // remove all characters other than numbers, dollars, commas; negative signs?
+        // remove all characters other than numbers, dollars, commas; negative signs
         if($this->next && $this->exists() && !ctype_digit(str_replace($ignore, '', $this->data[$this->currentfield]))) {
             $this->addErrorMessage('money');
             $this->next = false;
@@ -544,6 +541,23 @@ class Validator {
 
         // remove all characters except numbers, decimals, and negative signs
         $this->data[$this->currentfield] = str_replace(['$', ','], '', $this->data[$this->currentfield]);
+
+        $this->data[$this->currentfield] = (float) $this->data[$this->currentfield];
+
+        return $this;
+    }
+
+
+    /**
+     * Convert empty string to NULL value. This method alters the data. 
+     * 
+     * @return static 
+     * @see required()
+     */
+    public function nullify() {
+        if(isset($this->data[$this->currentfield]) && strlen($this->data[$this->currentfield]) == 0) {
+            $this->data[$this->currentfield] = NULL;
+        }
 
         return $this;
     }
@@ -568,7 +582,6 @@ class Validator {
      * Check for a date string and convert it to a period (Ex: Y-m-01).
      * 
      * @return static
-     * @todo review this
      */
     public function period() {
         if($this->next && $this->exists()) {
@@ -614,11 +627,10 @@ class Validator {
 
 
     /**
-     * Check against a regex pattern.
+     * Check against a regex pattern. /^[A-Za-z0-9!]+$/'
      * 
-     * @param string $pattern The regex pattern to match. This should be a complete regex string.
+     * @param string $pattern The regex pattern to match. This should be a complete regex string including starting and ending slashes.
      * @return static
-     * @todo verify if this needs slashes, etc in parameter. I believe it does.
      */
     public function regex(string $pattern) {
         if($this->next && $this->exists()) {
@@ -653,7 +665,7 @@ class Validator {
      * @return static 
      */
     public function state() {
-        // list of 51 valid states + D.C. (?)
+        // list of 51 valid states + D.C.
 		$states = array(
 			'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL',
 			'GA','HI','ID','IL','IN','IA','KS','KY','LA','ME',

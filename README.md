@@ -1,6 +1,3 @@
-@TODO rework this file
-@TODO show example of custom error message using customError()
-
 # Validator Class
 This is a simple validator class. It requires no dependencies. It is based on `https://github.com/devwithkunal/php-validator-class`. Easily validate common data types. If a dataset is not specified, the class imports POST or GET data to validate.
 
@@ -9,7 +6,7 @@ This is a simple validator class. It requires no dependencies. It is based on `h
 
 ## Basic Use
 
-Create the class instance. The constructor is the associative data array to be validated.
+Create the class instance. The constructor is the associative data array to be validated. If the `$data` is not specified, the class attempts to pull in POST data, then GET data.
 
 ```
 $v = new Validator($data);
@@ -27,13 +24,47 @@ if($v->isValid() == false) {
 
 
 
-## Methods???
-Some methods to use
-| Methods | Return | Description |
-|--------|--------|-------------|
-| `field(str $name, str? $alias)` | $this | Set the field name to start validation. <br/> param *string* `$name` - Name of the field/key as on data to validate. <br/> param *string* `$alias` - (optional) Alias use on error messages instead of field name. |
-| `set_response_messages(arr $messages)` | void | Function to set/extend custom error. <br /> Use associative array of messages as the parameter. See the messages format on `Validator.php` file at line `20`.
-| `is_valid()` | boolean | Check if all validations are successfull.
+## Basic Methods
+
+To start validation of a field, use the `field()` method. Once all validations are performed, use the `isValid()` method to determine if they were successful.
+
+|Method|Description|
+|------|-----------|
+|`field($name, $alias)` |Set the field name to start validation.<br />`$name` - Name of the field/key to validate.<br />`$alias` - Alias to use in error messages instead of the field name.|
+|`isValid()`            |Check if all validations are successful.|
+
+
+
+## Validation methods available
+
+After the `field()` method is called for a field, you can chain validation methods for each field.
+
+|Method|Description|
+|------|-----------|
+|`alpha($ignore)`                    |Check for alphabetic characters.|
+|`alphanumeric($ignore)`             |Check for alphanumeric characters.|
+|`changecase($case)`                 |Change case of string: capitalize, uppercase, lowercase.|
+|`contains($chars)`                  |Check if the value contains specific characters.|
+|`date()`                            |Check for a valid date.|
+|`dateafter($date)`                  |Check if a date comes after the given date.|
+|`datebefore($date)`                 |Check if a date comes before the given date.|
+|`email()`                           |Check for email address.|
+|`enum($list)`                       |Check if a value is in the list of approved values.|
+|`equals($value)`                    |Check if value is equal to a given value.|
+|`integer()`                         |Check for integer.|
+|`length($length)`                   |Check for exact length of string.|
+|`maxlength($length)`                |Check for maximum length of string.|
+|`maxvalue($value)`                  |Check for maximum value of integer or float.|
+|`minlength($length)`                |Check for minimum length of string.|
+|`minvalue($value)`                  |Check for minimum value of integer or float.|
+|`money($ignore)`                    |Check for currency. Changes string to decimal by removing dollar signs, commas, decimals, and negative signs.|
+|`numeric()`                         |Check for numeric characters.|
+|`period()`                          |Check for a date string and convert it to a period (Ex: Y-m-01).|
+|`phone()`                           |Check for valid U.S. phone number. Removes non-numeric characters and confirms length of string.|
+|`regex($pattern)`                   |Check against a regex pattern.|
+|`required()`                        |Check if the required value exists.|
+|`state()`                           |Check for valid U.S. state abbreviation.|
+|`zip()`                             |Check for valid U.S. zip code.|
 
 
 
@@ -79,6 +110,11 @@ $v->field('dob')->required()->date()->dateafter('January 2, 1976')->datebefore('
 $v->field('month')->required()->period();
 $v->field('payment')->required()->money();
 
+// custom error; validation takes place in if() statement
+if(1 == 2) {
+    $v->field('mycustom')->customError('{field} is incorrect');
+}
+
 
 if($v->isValid() == false) {
     echo '<pre>ERRORS FOUND:';
@@ -86,44 +122,3 @@ if($v->isValid() == false) {
     echo '</pre>';
 }
 ```
-
-
-
-
-
-
-
-
-## Validation methods available
-
-|Method|Description|
-|------|-----------|
-|`alpha($ignore)`                    |Check for alphabetic characters.|
-|`alphanumeric($ignore)`             |Check for alphanumeric characters.|
-|`changecase($case)`                 |Change case of string: capitalize, uppercase, lowercase.|
-|`contains($chars)`                  |Check if the value contains specific characters.|
-|`date()`                            |Check for a valid date.|
-|`dateafter($date)`                  |Check if a date comes after the given date.|
-|`datebefore($date)`                 |Check if a date comes before the given date.|
-|`email()`                           |Check for email address.|
-|`enum($list)`                       |Check if a value is in the list of approved values.|
-|`equals($value)`                    |Check if value is equal to a given value.|
-|`integer()`                         |Check for integer.|
-|`length($length)`                   |Check for exact length of string.|
-|`maxlength($length)`                |Check for maximum length of string.|
-|`maxvalue($value)`                  |Check for maximum value of integer or float.|
-|`minlength($length)`                |Check for minimum length of string.|
-|`minvalue($value)`                  |Check for minimum value of integer or float.|
-|`money($ignore)`                    |Check for currency. Changes string to decimal by removing dollar signs, commas, decimals, and negative signs.|
-|`numeric()`                         |Check for numeric characters.|
-|`period()`                          |Check for a date string and convert it to a period (Ex: Y-m-01).|
-|`phone()`                           |Check for valid U.S. phone number. Removes non-numeric characters and confirms length of string.|
-|`regex($pattern)`                   |Check against a regex pattern.|
-|`required()`                        |Check if the required value exists.|
-|`state()`                           |Check for valid U.S. state abbreviation.|
-|`zip()`                             |Check for valid U.S. zip code.|
-
-
-
-
-
