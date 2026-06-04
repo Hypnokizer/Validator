@@ -1,0 +1,10 @@
+{
+    "name": "hypnokizer/validator",
+    "description": "Class to validate a dataset",
+    "homepage": "https://github.com/Hypnokizer/Validator",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.3.0",
+        "hypnokizer/database": "7.0.*"
+    }
+}

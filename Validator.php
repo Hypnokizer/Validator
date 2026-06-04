@@ -1,9 +1,9 @@
 <?php 
 
 /**
- * Quickly validate data
+ * Class to validate a dataset.
  * 
- * Quickly validate a dataset. Data can be specified or automatically pulled in via POST or GET data.
+ * Class to validate a dataset. Data can be specified or automatically pulled in via POST or GET data. It can be used without dependancies, but extends the database class. It is based on https://github.com/devwithkunal/php-validator-class.
  * 
  * @author Nathan Kizer <hypnokizer@gmail.com>
  * @version 7.0
