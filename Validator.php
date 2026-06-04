@@ -15,7 +15,7 @@ namespace Hypnokizer;
 use DateTime;
 use Exception;
 
-class Validator {
+class Validator extends Database {
 
     /**
      * Data to validate.
@@ -70,7 +70,7 @@ class Validator {
      */
     public function __CONSTRUCT(array $data = NULL) {
 
-        // parent::__CONSTRUCT(); // @TODO when extending Database
+        parent::__CONSTRUCT(); 
 
         // define data to validate
         if(empty($data)) {
