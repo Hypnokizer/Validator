@@ -1,10 +1,22 @@
 {
     "name": "hypnokizer/validator",
-    "description": "Class to validate a dataset",
-    "homepage": "https://github.com/Hypnokizer/Validator",
-    "license": "MIT",
+    "description": "Class to validate a dataset.",
+    "type": "library",
     "require": {
         "php": ">=8.3.0",
-        "hypnokizer/database": "7.0.*"
-    }
+        "hypnokizer/database": "dev-master"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Hypnokizer\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Nathan Kizer",
+            "email": "hypnokizer@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
 }
