@@ -68,7 +68,7 @@ class Validator extends Database {
      * @param array $data Data to validate.
      * @return object Validator
      */
-    public function __CONSTRUCT(array $data = NULL) {
+    public function __CONSTRUCT(array|null $data = NULL) {
 
         parent::__CONSTRUCT(); 
 
