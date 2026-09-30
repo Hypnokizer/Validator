@@ -12,6 +12,7 @@
 
 namespace Hypnokizer;
 
+use Hypnokizer\Database
 use DateTime;
 use Exception;
 
