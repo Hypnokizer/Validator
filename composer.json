@@ -2,14 +2,10 @@
     "name": "hypnokizer/validator",
     "description": "Class to validate a dataset.",
     "type": "library",
-    "require": {
-        "php": ">=8.3.0",
-        "hypnokizer/database": "dev-master"
-    },
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Hypnokizer\\": "src/"
+            "Hypnokizer\\":"src/"
         }
     },
     "authors": [
@@ -18,5 +14,8 @@
             "email": "hypnokizer@gmail.com"
         }
     ],
-    "minimum-stability": "dev"
+    "require": {
+        "php": ">=8.1"
+    },
+    "minimum-stability": "stable"
 }
