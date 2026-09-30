@@ -209,7 +209,7 @@ class Validator extends Database {
      * @param string $alias Optional alias to use on error messages instead of the field name. 
      * @return static 
      */
-    public function field(string $name, string $alias = NULL) {
+    public function field(string $name, string|null $alias = NULL) {
         $this->currentfield = $name;
         $this->next = true;
         $this->currentalias = $alias;
